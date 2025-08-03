@@ -1,506 +1,544 @@
-Health Data Monitoring System
-This Python-based system generates realistic health data, analyzes it using the DeepSeek API, and stores the results in a MySQL database. It is designed for monitoring vital signs such as pulse rate, oxygen saturation, respiration rate, temperature, and ECG rhythm, providing medical evaluations based on the data. A Flask-based web interface allows users to view the collected data and manage the database, and a utility script automates the execution of the system components.
-Table of Contents
+# 🩺 Health Data Monitoring System
 
-Overview
-Features
-Requirements
-Setup
-Usage
-File Structure
-Logging
-Troubleshooting
-Contributing
+Welcome to the **Health Data Monitoring System**, a Python-based application designed to generate, analyze, and store realistic health data. This system leverages the **DeepSeek API** for medical evaluations and a **MySQL database** for data storage. A sleek **Flask-based web interface** allows users to visualize patient data, while an automation script simplifies running all components. 🚀
 
-Overview
-The system consists of three main scripts:
+---
 
-health_monitor.py: Generates realistic health data (e.g., pulse rate, oxygen saturation, respiration rate, temperature, and ECG rhythm), sends it to the DeepSeek API for medical analysis, and stores the results in a MySQL database.
-health_data_webui.py: Provides a Flask-based web interface to display stored patient data and allows users to drop the database table.
-run_all.py: Automates the execution of the Ollama server, health_monitor.py, and health_data_webui.py, ensuring all components start and stop together.
+## 📋 Table of Contents
 
-Logging is implemented to track operations and errors, with logs saved to rotating files and displayed on the console.
-Features
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [File Structure](#file-structure)
+- [Logging](#logging)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
 
-Data Generation: Generates realistic health data for pulse rate (60-100 bpm), oxygen saturation (95-100%), respiration rate (12-20 bpm), temperature (36-37.5°C), and ECG rhythm.
-DeepSeek API Integration: Sends vital signs to the DeepSeek API for medical analysis.
-MySQL Storage: Saves patient data and analysis results to a MySQL database.
-Web Interface: Displays patient data in a web browser and allows table deletion via a Flask-based UI.
-Automation: Uses run_all.py to start the Ollama server and both Python scripts in one command.
-Logging: Logs operations and errors to both files and console with rotation to manage log size.
-Error Handling: Robust error handling for API requests, database operations, and web requests.
+---
 
-Requirements
+## 🌟 Overview
 
-Python 3.6+
+The Health Data Monitoring System is built to simulate and analyze vital signs such as pulse rate, oxygen saturation, respiration rate, temperature, and ECG rhythm. It consists of three core scripts:
 
-MySQL database
+- **🔍 `health_monitor.py`**: Generates realistic health data, sends it to the DeepSeek API for medical analysis, and stores results in a MySQL database.
+- **🌐 `health_data_webui.py`**: Provides a Flask-based web interface to view patient data and manage the database.
+- **⚙️ `run_all.py`**: Automates the startup of the Ollama server, `health_monitor.py`, and `health_data_webui.py`.
 
-DeepSeek API running locally at http://localhost:11434/v1/chat/completions
+> **Note**: All operations and errors are logged to rotating files and the console for easy monitoring.
 
-Required Python libraries:
+---
 
-requests
-mysql-connector-python
-flask
+## ✨ Features
 
+- **📊 Data Generation**: Simulates realistic vital signs:
+  - Pulse rate: 60–100 bpm
+  - Oxygen saturation: 95–100%
+  - Respiration rate: 12–20 bpm
+  - Temperature: 36–37.5°C
+  - ECG rhythm: Various types (e.g., Normal Sinus Rhythm, Atrial Fibrillation)
+- **🧠 DeepSeek API Integration**: Sends vital signs for medical analysis.
+- **💾 MySQL Storage**: Stores patient data and analysis results securely.
+- **🖥️ Web Interface**: Displays data in a user-friendly table and allows table deletion.
+- **🤖 Automation**: Simplifies execution with `run_all.py`.
+- **📜 Logging**: Tracks operations and errors with rotating log files.
+- **🛡️ Error Handling**: Robust handling for API, database, and web requests.
 
-A config.py file with database and Flask configurations:
-DB_HOST = "your_host"
-DB_USER = "your_user"
-DB_PASSWORD = "your_password"
-DB_NAME = "health_data"
-DEBUG = True  # or False for production
-HOST = "0.0.0.0"
-PORT = 5000
+---
 
+## 📦 Requirements
 
+To run the system, ensure you have:
 
-Setup
+- **Python 3.6+**
+- **MySQL database**
+- **DeepSeek API** running locally at `http://localhost:11434/v1/chat/completions`
+- **Python Libraries**:
+  - `requests`
+  - `mysql-connector-python`
+  - `flask`
+- **Configuration File**: A `config.py` file with the following structure:
 
-Install Dependencies:
-pip install requests mysql-connector-python flask
+  ```python
+  DB_HOST = "your_host"       # e.g., "localhost"
+  DB_USER = "your_user"       # e.g., "root"
+  DB_PASSWORD = "your_password"
+  DB_NAME = "health_data"
+  DEBUG = True                # Set to False for production
+  HOST = "0.0.0.0"            # Flask host
+  PORT = 5000                 # Flask port
+  ```
 
+---
 
-Set Up the MySQL Database:
+## 🛠️ Setup
 
-Connect to your MySQL server using a client like MySQL Workbench, phpMyAdmin, or the MySQL command-line tool.
+Follow these steps to set up the system:
 
-Create the health_data database and patient_data table by running the following SQL commands:
-CREATE DATABASE IF NOT EXISTS health_data;
-USE health_data;
-CREATE TABLE IF NOT EXISTS patient_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id VARCHAR(10),
-    time DATETIME,
-    pulse_rate INT,
-    oxygen_saturation FLOAT,
-    respiration_rate INT,
-    temperature FLOAT,
-    ecg_rhythm VARCHAR(50),
-    health_status TEXT,
-    a0_value INT,
-    current_bpm INT
-);
+1. **Install Python Dependencies** 📥
 
+   Install the required libraries using pip:
 
-Grant permissions to the MySQL user specified in config.py:
-GRANT ALL PRIVILEGES ON health_data.* TO 'your_user'@'localhost' IDENTIFIED BY 'your_password';
-FLUSH PRIVILEGES;
+   ```bash
+   pip install requests mysql-connector-python flask
+   ```
 
-Replace 'your_user' and 'your_password' with the values from config.py.
+2. **Set Up the MySQL Database** 🗄️
 
-Update config.py with your database credentials and Flask settings, ensuring DB_NAME is set to "health_data".
+   - Connect to your MySQL server using a client (e.g., MySQL Workbench, phpMyAdmin, or command line).
+   - Create the `health_data` database and `patient_data` table with the following SQL commands:
 
+     ```sql
+     CREATE DATABASE IF NOT EXISTS health_data;
+     USE health_data;
+     CREATE TABLE IF NOT EXISTS patient_data (
+         id INT AUTO_INCREMENT PRIMARY KEY,
+         patient_id VARCHAR(10),
+         time DATETIME,
+         pulse_rate INT,
+         oxygen_saturation FLOAT,
+         respiration_rate INT,
+         temperature FLOAT,
+         ecg_rhythm VARCHAR(50),
+         health_status TEXT,
+         a0_value INT,
+         current_bpm INT
+     );
+     ```
 
+   - Grant permissions to the MySQL user specified in `config.py`:
 
-Install Ollama:
+     ```sql
+     GRANT ALL PRIVILEGES ON health_data.* TO 'your_user'@'localhost' IDENTIFIED BY 'your_password';
+     FLUSH PRIVILEGES;
+     ```
 
-Download and install Ollama for your operating system from Ollama's official website.
+     Replace `'your_user'` and `'your_password'` with the values from `config.py`.
 
-Windows: Run the installer and follow the prompts.
+   - Update `config.py` with your MySQL credentials and Flask settings, ensuring `DB_NAME` is set to `"health_data"`.
 
-macOS: Use Homebrew (brew install ollama) or download the installer.
+3. **Install Ollama** 🖥️
 
-Linux: Run the installation script:
-curl -fsSL https://ollama.com/install.sh | sh
+   - Download and install Ollama from [Ollama's official website](https://ollama.com/download).
+   - **Windows**: Run the installer and follow the prompts.
+   - **macOS**: Use Homebrew (`brew install ollama`) or download the installer.
+   - **Linux**: Run the installation script:
 
+     ```bash
+     curl -fsSL https://ollama.com/install.sh | sh
+     ```
 
-Verify installation:
-ollama --version
+   - Verify installation:
 
+     ```bash
+     ollama --version
+     ```
 
+4. **Set Up DeepSeek R1** 🤖
 
+   - Ollama supports DeepSeek R1 models ranging from 1.5B to 671B parameters. The 671B model is the original, while smaller models are distilled versions based on Qwen and Llama architectures.
+   - Pull a model suitable for your hardware (replace `X` with `1.5b`, `7b`, `8b`, `14b`, `32b`, `70b`, or `671b`):
 
-Set Up DeepSeek R1:
+     ```bash
+     ollama pull deepseek-r1:Xb
+     ```
 
-Ollama supports a range of DeepSeek R1 models, from 1.5B to 671B parameters. The 671B model is the original DeepSeek R1, while smaller models are distilled versions based on Qwen and Llama architectures.
+     Example for the 7B model:
 
-If your hardware cannot support the 671B model, select a smaller model by replacing X with the desired parameter size (e.g., 1.5b, 7b, 8b, 14b, 32b, 70b, 671b):
-ollama pull deepseek-r1:Xb
+     ```bash
+     ollama pull deepseek-r1:7b
+     ```
 
+   - Start the Ollama server:
 
-For example, to use the 7B model:
-ollama pull deepseek-r1:7b
+     ```bash
+     ollama serve
+     ```
 
+     This runs the server at `http://localhost:11434` for API requests.
 
-Start the Ollama server to make DeepSeek R1 available:
-ollama serve
+---
 
+## 🚀 Usage
 
-This runs the server at http://localhost:11434, which the script uses for API requests.
+### 1. **Run the Entire System**
 
+Use `run_all.py` to start all components at once:
 
-
-
-Usage
-
-Run the Entire System:
-
-Use the run_all.py script to start the Ollama server, health_monitor.py, and health_data_webui.py simultaneously:
+```bash
 python run_all.py
+```
 
+This script:
+- Launches the Ollama server (`http://localhost:11434`).
+- Runs `health_monitor.py` to generate and process health data.
+- Starts `health_data_webui.py` for the web interface.
+- Stops all processes when complete (press `Ctrl+C`).
 
-The script will:
+### 2. **Access the Web Interface** 🌐
 
-Start the Ollama server (at http://localhost:11434).
-Launch health_monitor.py to generate and process health data.
-Launch health_data_webui.py to serve the web interface.
-Wait for both Python scripts to complete, then terminate the Ollama server.
+- Open your browser and navigate to `http://localhost:5000` (or the configured host/port).
+- Features:
+  - View patient data in a table.
+  - Delete the `patient_data` table (redirects to the main page after deletion).
 
+### 3. **Manual Execution (Optional)**
 
-Press Ctrl+C to stop all processes.
+Run components individually:
 
+- Start the Ollama server:
 
+  ```bash
+  ollama serve
+  ```
 
-Access the Web Interface:
+- Run the data generation script:
 
-Open a web browser and navigate to http://localhost:5000 (or the configured host/port) to view the patient data.
-The web interface allows you to:
-View all stored patient data in a table.
-Drop the patient_data table via a button (redirects to the main page after deletion).
+  ```bash
+  python health_monitor.py
+  ```
 
+- Run the web interface:
 
+  ```bash
+  python health_data_webui.py
+  ```
 
+- Stop each process with `Ctrl+C`.
 
-Manual Execution (Optional):
+---
 
-If you prefer to run the scripts individually:
-Start the Ollama server:
-ollama serve
+## 📂 File Structure
 
+- **`health_monitor.py`**: Generates health data, performs API analysis, and stores results.
+- **`health_data_webui.py`**: Flask-based web interface for data visualization and database management.
+- **`run_all.py`**: Automates execution of all components.
+- **`config.py`**: Stores database and Flask configurations.
+- **`health_data.log`**: Logs for `health_monitor.py` (1MB max, 5 backups).
+- **`app.log`**: Logs for `health_data_webui.py` (1MB max, 5 backups).
+- **`templates/`**: Contains HTML templates (`index.html`, `error.html`) for the Flask interface.
 
-Run the data generation script:
-python health_monitor.py
+---
 
+## 📜 Logging
 
-Run the web interface:
-python health_data_webui.py
+- **For `health_monitor.py`**:
+  - Logs are saved to `health_data.log` with a 1MB limit and 5 backup files.
+- **For `health_data_webui.py`**:
+  - Logs are saved to `app.log` with a 1MB limit and 5 backup files.
+- Logs are also displayed on the console for real-time monitoring.
+- Log format: `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
 
+---
 
-Press Ctrl+C to stop each process individually.
+## 🛠️ Troubleshooting
 
+> **Tip**: Check log files (`health_data.log` and `app.log`) for detailed error messages.
 
+- **Database Errors**:
+  - Verify `config.py` credentials.
+  - Ensure the MySQL server is running and the `health_data` database and `patient_data` table exist.
+  - Common MySQL errors:
+    - `1045`: Incorrect username or password.
+    - `1049`: Database does not exist (run `CREATE DATABASE`).
+    - `1146`: Table does not exist (run `CREATE TABLE`).
+- **API Errors**:
+  - Confirm the Ollama server is running at `http://localhost:11434`.
+  - Check if the DeepSeek R1 model is downloaded (`ollama list`).
+- **Web Interface Errors**:
+  - Ensure the Flask server is running (`run_all.py` or `python health_data_webui.py`).
+  - Verify `config.py` host/port settings and firewall permissions.
+  - Check for `index.html` and `error.html` in the `templates/` directory.
+- **Ollama Server Errors**:
+  - Check if port `11434` is in use:
 
+    ```bash
+    netstat -an | grep 11434
+    ```
 
+  - Verify Ollama installation (`ollama --version`) and model availability.
 
+---
 
-File Structure
+## 🤝 Contributing
 
-health_monitor.py: Main script for generating realistic health data, API analysis, and database storage.
-health_data_webui.py: Flask-based web interface for viewing patient data and managing the database.
-run_all.py: Utility script to automate the execution of the Ollama server, health_monitor.py, and health_data_webui.py.
-config.py: Configuration file for database credentials and Flask settings.
-health_data.log: Log file for tracking operations and errors from health_monitor.py (with rotation).
-app.log: Log file for tracking operations and errors from health_data_webui.py (with rotation).
-templates/: Directory containing HTML templates (index.html, error.html) for the Flask web interface.
+We welcome contributions! To contribute:
 
-Logging
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature-name`).
+3. Commit your changes (`git commit -m "Add feature"`).
+4. Push to the branch (`git push origin feature-name`).
+5. Open a pull request.
 
-For health_monitor.py:
-Logs are saved to health_data.log with a maximum size of 1MB and up to 5 backup files.
+---
 
+# 🩺 Sağlık Verileri İzleme Sistemi
 
-For health_data_webui.py:
-Logs are saved to app.log with a maximum size of 1MB and up to 5 backup files.
+**Sağlık Verileri İzleme Sistemi**, gerçekçi sağlık verileri üreten, **DeepSeek API** ile analiz eden ve sonuçları **MySQL veritabanında** saklayan Python tabanlı bir uygulamadır. Nabız, oksijen doygunluğu, solunum hızı, sıcaklık ve EKG ritmi gibi hayati bulguları izlemek için tasarlanmıştır. **Flask tabanlı web arayüzü**, verileri görselleştirir ve veritabanını yönetir; bir yardımcı betik ise tüm bileşenleri otomatikleştirir. 🚀
 
+---
 
-Logs for both scripts are printed to the console for real-time monitoring.
-Log format: %(asctime)s - %(name)s - %(levelname)s - %(message)s.
+## 📋 İçindekiler
 
-Troubleshooting
+- [Genel Bakış](#genel-bakış)
+- [Özellikler](#özellikler)
+- [Gereksinimler](#gereksinimler)
+- [Kurulum](#kurulum)
+- [Kullanım](#kullanım)
+- [Dosya Yapısı](#dosya-yapısı)
+- [Günlük Kaydı](#günlük-kaydı)
+- [Sorun Giderme](#sorun-giderme)
+- [Katkıda Bulunma](#katkıda-bulunma)
 
-Database Errors:
-Verify database credentials in config.py.
-Ensure the MySQL server is running and the health_data database and patient_data table exist.
-Check for common MySQL errors:
-1045: Incorrect username or password.
-1049: Database does not exist (run the CREATE DATABASE command).
-1146: Table does not exist (run the CREATE TABLE command).
+---
 
+## 🌟 Genel Bakış
 
+Bu sistem, aşağıdaki üç ana betikten oluşur:
 
+- **🔍 `health_monitor.py`**: Gerçekçi sağlık verileri üretir, DeepSeek API ile analiz eder ve sonuçları MySQL veritabanına kaydeder.
+- **🌐 `health_data_webui.py`**: Hasta verilerini görüntülemek ve veritabanını yönetmek için Flask tabanlı bir web arayüzü sağlar.
+- **⚙️ `run_all.py`**: Ollama sunucusu, `health_monitor.py` ve `health_data_webui.py` betiklerini tek komutla çalıştırır.
 
-API Errors:
-Confirm the Ollama server is running (via run_all.py or ollama serve) and accessible at http://localhost:11434.
-Check network connectivity and ensure the DeepSeek R1 model is downloaded (ollama list).
+> **Not**: Tüm işlemler ve hatalar, kolay izleme için hem dosyaya hem de konsola kaydedilir.
 
+---
 
-Web Interface Errors:
-Ensure the Flask server is running (via run_all.py or python health_data_webui.py).
-Check the host/port settings in config.py and ensure they are not blocked by a firewall.
-Verify that the templates/ directory contains index.html and error.html.
+## ✨ Özellikler
 
+- **📊 Veri Üretimi**: Gerçekçi hayati bulgular üretir:
+  - Nabız: 60–100 bpm
+  - Oksijen doygunluğu: 95–100%
+  - Solunum hızı: 12–20 bpm
+  - Sıcaklık: 36–37.5°C
+  - EKG ritmi: Çeşitli türler (örn. Normal Sinüs Ritmi, Atriyal Fibrilasyon)
+- **🧠 DeepSeek API Entegrasyonu**: Hayati bulguları tıbbi analiz için gönderir.
+- **💾 MySQL Depolama**: Verileri ve analiz sonuçlarını güvenli bir şekilde saklar.
+- **🖥️ Web Arayüzü**: Verileri kullanıcı dostu bir tabloda gösterir ve tablo silme işlevi sunar.
+- **🤖 Otomasyon**: `run_all.py` ile tüm bileşenleri kolayca başlatır.
+- **📜 Günlük Kaydı**: İşlemleri ve hataları rotasyonlu dosyalara kaydeder.
+- **🛡️ Hata Yönetimi**: API, veritabanı ve web istekleri için sağlam hata yönetimi.
 
-Ollama Server Errors:
-If the Ollama server fails to start, check if port 11434 is in use:
-netstat -an | grep 11434
+---
 
+## 📦 Gereksinimler
 
-Ensure Ollama is installed correctly (ollama --version) and the DeepSeek R1 model is downloaded.
+Sistemi çalıştırmak için:
 
+- **Python 3.6+**
+- **MySQL veritabanı**
+- **DeepSeek API**, yerel olarak `http://localhost:11434/v1/chat/completions` adresinde çalışmalı
+- **Python Kütüphaneleri**:
+  - `requests`
+  - `mysql-connector-python`
+  - `flask`
+- **Yapılandırma Dosyası**: Aşağıdaki yapıya sahip bir `config.py` dosyası:
 
+  ```python
+  DB_HOST = "your_host"       # örn. "localhost"
+  DB_USER = "your_user"       # örn. "root"
+  DB_PASSWORD = "your_password"
+  DB_NAME = "health_data"
+  DEBUG = True                # Üretim için False
+  HOST = "0.0.0.0"            # Flask host
+  PORT = 5000                 # Flask port
+  ```
 
+---
 
-Contributing
-Contributions are welcome! Please:
+## 🛠️ Kurulum
 
-Fork the repository.
-Create a feature branch (git checkout -b feature-name).
-Commit your changes (git commit -m "Add feature").
-Push to the branch (git push origin feature-name).
-Open a pull request.
+Sistemi kurmak için şu adımları izleyin:
 
+1. **Python Bağımlılıklarını Yükleyin** 📥
 
-Sağlık Verileri İzleme Sistemi
-Bu Python tabanlı sistem, gerçekçi sağlık verileri üretir, DeepSeek API'sini kullanarak analiz eder ve sonuçları bir MySQL veritabanına kaydeder. Nabız, oksijen doygunluğu, solunum hızı, sıcaklık ve EKG ritmi gibi hayati bulguları izlemek ve bu verilere dayalı tıbbi değerlendirmeler sağlamak için tasarlanmıştır. Flask tabanlı bir web arayüzü, kullanıcıların toplanan verileri görüntülemesini ve veritabanını yönetmesini sağlar; bir yardımcı betik ise sistem bileşenlerinin çalıştırılmasını otomatikleştirir.
-İçindekiler
+   Gerekli kütüphaneleri pip ile yükleyin:
 
-Genel Bakış
-Özellikler
-Gereksinimler
-Kurulum
-Kullanım
-Dosya Yapısı
-Günlük Kaydı
-Sorun Giderme
-Katkıda Bulunma
+   ```bash
+   pip install requests mysql-connector-python flask
+   ```
 
-Genel Bakış
-Sistem üç ana betikten oluşur:
+2. **MySQL Veritabanını Kurun** 🗄️
 
-health_monitor.py: Gerçekçi sağlık verileri (örneğin, nabız, oksijen doygunluğu, solunum hızı, sıcaklık ve EKG ritmi) üretir, tıbbi analiz için DeepSeek API'sine gönderir ve sonuçları bir MySQL veritabanına kaydeder.
-health_data_webui.py: Kaydedilen hasta verilerini görüntülemek ve veritabanı tablosunu silmek için Flask tabanlı bir web arayüzü sağlar.
-run_all.py: Ollama sunucusu, health_monitor.py ve health_data_webui.py betiklerinin çalıştırılmasını otomatikleştirir.
+   - MySQL sunucusuna bir istemciyle bağlanın (örn. MySQL Workbench, phpMyAdmin veya komut satırı).
+   - `health_data` veritabanını ve `patient_data` tablosunu oluşturmak için şu SQL komutlarını çalıştırın:
 
-İşlemleri ve hataları izlemek için günlük kaydı uygulanmış olup, günlükler hem bir dosyaya hem de konsola kaydedilir ve dosya boyutunu yönetmek için rotasyon kullanılır.
-Özellikler
+     ```sql
+     CREATE DATABASE IF NOT EXISTS health_data;
+     USE health_data;
+     CREATE TABLE IF NOT EXISTS patient_data (
+         id INT AUTO_INCREMENT PRIMARY KEY,
+         patient_id VARCHAR(10),
+         time DATETIME,
+         pulse_rate INT,
+         oxygen_saturation FLOAT,
+         respiration_rate INT,
+         temperature FLOAT,
+         ecg_rhythm VARCHAR(50),
+         health_status TEXT,
+         a0_value INT,
+         current_bpm INT
+     );
+     ```
 
-Veri Üretimi: Nabız (60-100 bpm), oksijen doygunluğu (95-100%), solunum hızı (12-20 bpm), sıcaklık (36-37.5°C) ve EKG ritmi için gerçekçi sağlık verileri üretir.
-DeepSeek API Entegrasyonu: Hayati bulguları tıbbi analiz için DeepSeek API'sine gönderir.
-MySQL Depolama: Hasta verilerini ve analiz sonuçlarını MySQL veritabanına kaydeder.
-Web Arayüzü: Hasta verilerini bir web tarayıcısında görüntüler ve tablo silme işlevini sağlar.
-Otomasyon: run_all.py ile Ollama sunucusu ve Python betiklerini tek bir komutla başlatır.
-Günlük Kaydı: İşlemleri ve hataları hem dosyaya hem de konsola kaydeder; dosya boyutu yönetimi için rotasyon kullanılır.
-Hata Yönetimi: API istekleri, veritabanı işlemleri ve web istekleri için sağlam hata yönetimi.
+   - `config.py` dosyasındaki kullanıcı için izinleri ayarlayın:
 
-Gereksinimler
+     ```sql
+     GRANT ALL PRIVILEGES ON health_data.* TO 'your_user'@'localhost' IDENTIFIED BY 'your_password';
+     FLUSH PRIVILEGES;
+     ```
 
-Python 3.6+
+     `your_user` ve `your_password` değerlerini `config.py` dosyanızdaki değerlerle değiştirin.
 
-MySQL veritabanı
+   - `config.py` dosyasını veritabanı kimlik bilgileri ve Flask ayarlarıyla güncelleyin, `DB_NAME` değerinin `"health_data"` olduğundan emin olun.
 
-DeepSeek API'sinin yerel olarak http://localhost:11434/v1/chat/completions adresinde çalışması
+3. **Ollama'yı Yükleyin** 🖥️
 
-Gerekli Python kütüphaneleri:
+   - Ollama'yı [resmi web sitesinden](https://ollama.com/download) indirip yükleyin.
+   - **Windows**: Yükleyiciyi çalıştırın ve talimatları izleyin.
+   - **macOS**: Homebrew ile yükleyin (`brew install ollama`) veya yükleyiciyi indirin.
+   - **Linux**: Yükleme betiğini çalıştırın:
 
-requests
-mysql-connector-python
-flask
+     ```bash
+     curl -fsSL https://ollama.com/install.sh | sh
+     ```
 
+   - Kurulumu doğrulayın:
 
-Veritabanı ve Flask ayarları için bir config.py dosyası:
-DB_HOST = "your_host"
-DB_USER = "your_user"
-DB_PASSWORD = "your_password"
-DB_NAME = "health_data"
-DEBUG = True  # veya üretim için False
-HOST = "0.0.0.0"
-PORT = 5000
+     ```bash
+     ollama --version
+     ```
 
+4. **DeepSeek R1'i Kurun** 🤖
 
+   - Ollama, 1.5B'den 671B parametreye kadar DeepSeek R1 modellerini destekler. Donanımınıza uygun bir modeli çekin (`X` yerine `1.5b`, `7b`, `8b`, `14b`, `32b`, `70b` veya `671b` yazın):
 
-Kurulum
+     ```bash
+     ollama pull deepseek-r1:Xb
+     ```
 
-Bağımlılıkları Yükleyin:
-pip install requests mysql-connector-python flask
+     Örnek (7B modeli için):
 
+     ```bash
+     ollama pull deepseek-r1:7b
+     ```
 
-MySQL Veritabanını Kurun:
+   - Ollama sunucusunu başlatın:
 
-MySQL sunucusuna MySQL Workbench, phpMyAdmin veya MySQL komut satırı gibi bir istemciyle bağlanın.
+     ```bash
+     ollama serve
+     ```
 
-health_data veritabanını ve patient_data tablosunu oluşturmak için aşağıdaki SQL komutlarını çalıştırın:
-CREATE DATABASE IF NOT EXISTS health_data;
-USE health_data;
-CREATE TABLE IF NOT EXISTS patient_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id VARCHAR(10),
-    time DATETIME,
-    pulse_rate INT,
-    oxygen_saturation FLOAT,
-    respiration_rate INT,
-    temperature FLOAT,
-    ecg_rhythm VARCHAR(50),
-    health_status TEXT,
-    a0_value INT,
-    current_bpm INT
-);
+     Bu, sunucuyu `http://localhost:11434` adresinde çalıştırır.
 
+---
 
-config.py dosyasındaki kullanıcı için izinleri ayarlayın:
-GRANT ALL PRIVILEGES ON health_data.* TO 'your_user'@'localhost' IDENTIFIED BY 'your_password';
-FLUSH PRIVILEGES;
+## 🚀 Kullanım
 
-your_user ve your_password değerlerini config.py dosyanızdaki değerlerle değiştirin.
+### 1. **Tüm Sistemi Çalıştırın**
 
-config.py dosyasını veritabanı kimlik bilgileri ve Flask ayarlarıyla güncelleyin, DB_NAME değerinin "health_data" olduğundan emin olun.
+Tüm bileşenleri tek komutla başlatmak için:
 
-
-
-Ollama Kurulumu:
-
-İşletim sisteminize uygun Ollama'yı Ollama'nın resmi web sitesinden indirip yükleyin.
-
-Windows: Yükleyiciyi çalıştırın ve talimatları izleyin.
-
-macOS: Homebrew ile yükleyin (brew install ollama) veya yükleyiciyi indirin.
-
-Linux: Yükleme betiğini çalıştırın:
-curl -fsSL https://ollama.com/install.sh | sh
-
-
-Kurulumu doğrulayın:
-ollama --version
-
-
-
-
-DeepSeek R1 Kurulumu:
-
-Ollama, 1.5B'den 671B parametreye kadar çeşitli DeepSeek R1 modellerini destekler. 671B modeli orijinal DeepSeek R1'dir; daha küçük modeller, Qwen ve Llama mimarilerine dayalı damıtılmış sürümlerdir.
-
-Donanımınız 671B modelini desteklemiyorsa, istediğiniz parametre boyutunu (1.5b, 7b, 8b, 14b, 32b, 70b, 671b) seçerek daha küçük bir modeli çalıştırabilirsiniz:
-ollama pull deepseek-r1:Xb
-
-
-Örneğin, 7B modeli için:
-ollama pull deepseek-r1:7b
-
-
-DeepSeek R1'i sunmak için Ollama sunucusunu başlatın:
-ollama serve
-
-
-Bu, sunucuyu http://localhost:11434 adresinde çalıştırır ve betiğinizin API istekleri için kullandığı adrestir.
-
-
-
-
-Kullanım
-
-Tüm Sistemi Çalıştırın:
-
-run_all.py betiğini kullanarak Ollama sunucusunu, health_monitor.py ve health_data_webui.py betiklerini aynı anda başlatın:
+```bash
 python run_all.py
+```
 
+Bu betik:
+- Ollama sunucusunu başlatır (`http://localhost:11434`).
+- `health_monitor.py` ile sağlık verileri üretir ve işler.
+- `health_data_webui.py` ile web arayüzünü sunar.
+- Tüm işlemleri durdurmak için `Ctrl+C` basın.
 
-Betik şunları yapacaktır:
+### 2. **Web Arayüzüne Erişim** 🌐
 
-Ollama sunucusunu başlatır (http://localhost:11434 adresinde).
-health_monitor.py betiğini çalıştırarak gerçekçi sağlık verileri üretir ve işler.
-health_data_webui.py betiğini çalıştırarak web arayüzünü sunar.
-Her iki Python betiğinin tamamlanmasını bekler ve ardından Ollama sunucusunu sonlandırır.
+- Tarayıcınızda `http://localhost:5000` adresine gidin (veya yapılandırılmış host/port).
+- Özellikler:
+  - Hasta verilerini bir tabloda görüntüleme.
+  - `patient_data` tablosunu silme (ana sayfaya yönlendirir).
 
+### 3. **Manuel Çalıştırma (İsteğe Bağlı)**
 
-Tüm işlemleri durdurmak için Ctrl+C tuşlarına basın.
+Bileşenleri ayrı ayrı çalıştırın:
 
+- Ollama sunucusunu başlatın:
 
+  ```bash
+  ollama serve
+  ```
 
-Web Arayüzüne Erişim:
+- Veri üretme betiğini çalıştırın:
 
-Bir web tarayıcısında http://localhost:5000 adresine (veya yapılandırılmış host/port adresine) gidin.
-Web arayüzü şunları sağlar:
-Tüm kaydedilen hasta verilerini bir tabloda görüntüleme.
-patient_data tablosunu bir düğme aracılığıyla silme (silme işleminden sonra ana sayfaya yönlendirir).
+  ```bash
+  python health_monitor.py
+  ```
 
+- Web arayüzünü çalıştırın:
 
+  ```bash
+  python health_data_webui.py
+  ```
 
+- Her işlemi `Ctrl+C` ile durdurun.
 
-Manuel Çalıştırma (İsteğe Bağlı):
+---
 
-Betikleri ayrı ayrı çalıştırmak isterseniz:
-Ollama sunucusunu başlatın:
-ollama serve
+## 📂 Dosya Yapısı
 
+- **`health_monitor.py`**: Sağlık verileri üretir, API analizi yapar ve sonuçları kaydeder.
+- **`health_data_webui.py`**: Verileri görüntülemek ve veritabanını yönetmek için web arayüzü.
+- **`run_all.py`**: Tüm bileşenleri otomatikleştirir.
+- **`config.py`**: Veritabanı ve Flask ayarları.
+- **`health_data.log`**: `health_monitor.py` için günlükler (1MB, 5 yedek).
+- **`app.log`**: `health_data_webui.py` için günlükler (1MB, 5 yedek).
+- **`templates/`**: Flask için HTML şablonları (`index.html`, `error.html`).
 
-Veri üretme betiğini çalıştırın:
-python health_monitor.py
+---
 
+## 📜 Günlük Kaydı
 
-Web arayüzünü çalıştırın:
-python health_data_webui.py
+- **`health_monitor.py` için**:
+  - Günlükler `health_data.log` dosyasına kaydedilir (1MB, 5 yedek).
+- **`health_data_webui.py` için**:
+  - Günlükler `app.log` dosyasına kaydedilir (1MB, 5 yedek).
+- Günlükler konsolda da gerçek zamanlı gösterilir.
+- Format: `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
 
+---
 
-Her bir işlemi ayrı ayrı durdurmak için Ctrl+C tuşlarına basın.
+## 🛠️ Sorun Giderme
 
+> **İpucu**: Hata detayları için `health_data.log` ve `app.log` dosyalarını kontrol edin.
 
+- **Veritabanı Hataları**:
+  - `config.py` kimlik bilgilerini doğrulayın.
+  - MySQL sunucusunun çalıştığından ve `health_data` veritabanı ile `patient_data` tablosunun mevcut olduğundan emin olun.
+  - Yaygın hatalar:
+    - `1045`: Yanlış kullanıcı adı/şifre.
+    - `1049`: Veritabanı mevcut değil (`CREATE DATABASE` çalıştırın).
+    - `1146`: Tablo mevcut değil (`CREATE TABLE` çalıştırın).
+- **API Hataları**:
+  - Ollama sunucusunun `http://localhost:11434` adresinde çalıştığını kontrol edin.
+  - DeepSeek R1 modelinin indirildiğini doğrulayın (`ollama list`).
+- **Web Arayüzü Hataları**:
+  - Flask sunucusunun çalıştığını kontrol edin (`run_all.py` veya `python health_data_webui.py`).
+  - `config.py` host/port ayarlarını ve güvenlik duvarını kontrol edin.
+  - `templates/` dizininde `index.html` ve `error.html` dosyalarını doğrulayın.
+- **Ollama Sunucu Hataları**:
+  - 11434 portunun kullanımda olup olmadığını kontrol edin:
 
+    ```bash
+    netstat -an | grep 11434
+    ```
 
+  - Ollama kurulumunu (`ollama --version`) ve model varlığını doğrulayın.
 
+---
 
-Dosya Yapısı
+## 🤝 Katkıda Bulunma
 
-health_monitor.py: Gerçekçi sağlık verileri üretme, API analizi ve veritabanı depolama için ana betik.
-health_data_webui.py: Hasta verilerini görüntülemek ve veritabanını yönetmek için Flask tabanlı web arayüzü.
-run_all.py: Ollama sunucusu, health_monitor.py ve health_data_webui.py betiklerinin çalıştırılmasını otomatikleştiren yardımcı betik.
-config.py: Veritabanı kimlik bilgileri ve Flask ayarları için yapılandırma dosyası.
-health_data.log: health_monitor.py işlemlerini ve hatalarını izlemek için günlük dosyası (rotasyon ile).
-app.log: health_data_webui.py işlemlerini ve hatalarını izlemek için günlük dosyası (rotasyon ile).
-templates/: Flask web arayüzü için HTML şablonlarını (index.html, error.html) içeren dizin.
+Katkılarınızı bekliyoruz! Katkıda bulunmak için:
 
-Günlük Kaydı
-
-health_monitor.py için:
-Günlükler, maksimum 1MB boyutunda ve en fazla 5 yedek dosyayla health_data.log dosyasına kaydedilir.
-
-
-health_data_webui.py için:
-Günlükler, maksimum 1MB boyutunda ve en fazla 5 yedek dosyayla app.log dosyasına kaydedilir.
-
-
-Her iki betik için günlükler, gerçek zamanlı izleme için konsola da yazdırılır.
-Günlük formatı: %(asctime)s - %(name)s - %(levelname)s - %(message)s.
-
-Sorun Giderme
-
-Veritabanı Hataları:
-config.py dosyasındaki veritabanı kimlik bilgilerini doğrulayın.
-MySQL sunucusunun çalıştığından ve health_data veritabanı ile patient_data tablosunun mevcut olduğundan emin olun.
-Yaygın MySQL hataları:
-1045: Yanlış kullanıcı adı veya şifre.
-1049: Veritabanı mevcut değil (CREATE DATABASE komutunu çalıştırın).
-1146: Tablo mevcut değil (CREATE TABLE komutunu çalıştırın).
-
-
-
-
-API Hataları:
-Ollama sunucusunun (run_all.py veya ollama serve ile) çalıştığını ve http://localhost:11434 adresinde erişilebilir olduğunu doğrulayın.
-Ağ bağlantısını kontrol edin ve DeepSeek R1 modelinin indirildiğini kontrol edin (ollama list).
-
-
-Web Arayüzü Hataları:
-Flask sunucusunun çalıştığından emin olun (run_all.py veya python health_data_webui.py ile).
-config.py dosyasındaki host/port ayarlarını kontrol edin ve güvenlik duvarı tarafından engellenmediğinden emin olun.
-templates/ dizininde index.html ve error.html dosyalarının mevcut olduğunu doğrulayın.
-
-
-Ollama Sunucu Hataları:
-Ollama sunucusunun başlatılamaması durumunda, 11434 portunun başka bir uygulama tarafından kullanılıp kullanılmadığını kontrol edin:
-netstat -an | grep 11434
-
-
-Ollama'nın doğru yüklendiğini doğrulayın (ollama --version) ve DeepSeek R1 modelinin indirildiğini kontrol edin (ollama list).
-
-
-
-
-Katkıda Bulunma
-Katkılar memnuniyetle karşılanır! Lütfen:
-
-Depoyu çatallayın (fork).
-Bir özellik dalı oluşturun (git checkout -b feature-name).
-Değişikliklerinizi kaydedin (git commit -m "Add feature").
-Dalı itin (git push origin feature-name).
-Bir çekme isteği (pull request) açın.
+1. Depoyu çatallayın (fork).
+2. Özellik dalı oluşturun (`git checkout -b feature-name`).
+3. Değişikliklerinizi kaydedin (`git
