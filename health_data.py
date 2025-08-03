@@ -8,7 +8,6 @@ from datetime import datetime
 import config
 import logging
 from logging.handlers import RotatingFileHandler
-import serial
 
 # Loglama ayarları
 def setup_logging():
@@ -27,11 +26,6 @@ def setup_logging():
     return logger
 
 logger = setup_logging()
-
-# Serial port ayarları
-serial_port = 'COM9'  # Arduino'nun bağlı olduğu portu güncelleyin
-baud_rate = 115200
-ser = serial.Serial(serial_port, baud_rate, timeout=1)
 
 # DeepSeek API ile analiz yap
 def analyze_with_deepseek(data):
@@ -126,40 +120,22 @@ ECG_RHYTHMS = [
 # Ana döngü
 while True:
     try:
-        # Serial porttan veri oku
-        if ser.in_waiting > 0:
-            line = ser.readline().decode('utf-8', errors='replace').strip()
-            if line:
-                if line == "Leads off detected!":
-                    logger.info("Sensör bağlantısı kesildi (Leads off detected)")
-                    continue
-                try:
-                    if "," in line:
-                        a0_value, current_bpm = map(int, line.split(','))
-                        logger.info(f"Alınan Serial Veri: A0={a0_value}, BPM={current_bpm}")
-                    else:
-                        logger.warning(f"Geçersiz veri formatı: {line.encode('ascii', 'ignore').decode('ascii')}")
-                        continue
-                except ValueError:
-                    logger.warning(f"Geçersiz veri formatı: {line.encode('ascii', 'ignore').decode('ascii')}")
-                    continue
-            else:
-                continue
-        else:
-            sleep(1)
-            continue
+        # Rastgele ama gerçekçi sağlık verileri oluştur
+        a0_value = random.randint(300, 700)  # EKG sinyali için gerçekçi A0 değeri (300-700 arası)
+        current_bpm = random.randint(60, 100)  # Normal nabız aralığı (60-100 bpm)
+        logger.info(f"Oluşturulan Veri: A0={a0_value}, BPM={current_bpm}")
 
-        # Hasta verileri (pulse_rate için Arduino'dan gelen veriyi kullan)
+        # Hasta verileri
         data = {
             "patient_id": f"PT-{random.randint(1000, 9999)}",
             "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "pulse_rate": current_bpm,  # Arduino'dan gelen gerçek nabız verisi
-            "oxygen_saturation": round(random.uniform(90.0, 100.0), 1),
-            "respiration_rate": random.randint(12, 30),
-            "temperature": round(random.uniform(36.0, 40.0), 1),
-            "ecg_rhythm": random.choice(ECG_RHYTHMS)
+            "pulse_rate": current_bpm,  # Rastgele ama gerçekçi nabız verisi
+            "oxygen_saturation": round(random.uniform(95.0, 100.0), 1),  # Normal oksijen doygunluğu (95-100%)
+            "respiration_rate": random.randint(12, 20),  # Normal solunum hızı (12-20 bpm)
+            "temperature": round(random.uniform(36.0, 37.5), 1),  # Normal vücut sıcaklığı (36-37.5°C)
+            "ecg_rhythm": random.choice(ECG_RHYTHMS)  # Rastgele EKG ritmi
         }
-        logger.info(f"Alınan Veri: {data}")
+        logger.info(f"Oluşturulan Hasta Verileri: {data}")
         
         recommendation = analyze_with_deepseek(data)
         
@@ -169,7 +145,7 @@ while True:
         else:
             logger.warning("DeepSeek API'den yanıt alınamadı")
         
-        sleep(60)
+        sleep(60)  # 60 saniye bekle
     except Exception as e:
         logger.error(f"Beklenmedik hata: {e}")
         sleep(60)
