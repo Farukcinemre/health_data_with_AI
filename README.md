@@ -49,7 +49,7 @@ A config.py file with database and Flask configurations:
 DB_HOST = "your_host"
 DB_USER = "your_user"
 DB_PASSWORD = "your_password"
-DB_NAME = "your_database"
+DB_NAME = "health_data"
 DEBUG = True  # or False for production
 HOST = "0.0.0.0"
 PORT = 5000
@@ -62,12 +62,14 @@ Install Dependencies:
 pip install requests mysql-connector-python flask
 
 
-Set Up the Database:
+Set Up the MySQL Database:
 
-Create a MySQL database and table for storing patient data:
-CREATE DATABASE health_data;
+Connect to your MySQL server using a client like MySQL Workbench, phpMyAdmin, or the MySQL command-line tool.
+
+Create the health_data database and patient_data table by running the following SQL commands:
+CREATE DATABASE IF NOT EXISTS health_data;
 USE health_data;
-CREATE TABLE patient_data (
+CREATE TABLE IF NOT EXISTS patient_data (
     id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id VARCHAR(10),
     time DATETIME,
@@ -82,7 +84,13 @@ CREATE TABLE patient_data (
 );
 
 
-Update config.py with your database credentials and Flask settings.
+Grant permissions to the MySQL user specified in config.py:
+GRANT ALL PRIVILEGES ON health_data.* TO 'your_user'@'localhost' IDENTIFIED BY 'your_password';
+FLUSH PRIVILEGES;
+
+Replace 'your_user' and 'your_password' with the values from config.py.
+
+Update config.py with your database credentials and Flask settings, ensuring DB_NAME is set to "health_data".
 
 
 
@@ -204,7 +212,13 @@ Troubleshooting
 
 Database Errors:
 Verify database credentials in config.py.
-Ensure the MySQL server is running and the patient_data table exists.
+Ensure the MySQL server is running and the health_data database and patient_data table exist.
+Check for common MySQL errors:
+1045: Incorrect username or password.
+1049: Database does not exist (run the CREATE DATABASE command).
+1146: Table does not exist (run the CREATE TABLE command).
+
+
 
 
 API Errors:
@@ -289,7 +303,7 @@ Veritabanı ve Flask ayarları için bir config.py dosyası:
 DB_HOST = "your_host"
 DB_USER = "your_user"
 DB_PASSWORD = "your_password"
-DB_NAME = "your_database"
+DB_NAME = "health_data"
 DEBUG = True  # veya üretim için False
 HOST = "0.0.0.0"
 PORT = 5000
@@ -302,12 +316,14 @@ Bağımlılıkları Yükleyin:
 pip install requests mysql-connector-python flask
 
 
-Veritabanını Kurun:
+MySQL Veritabanını Kurun:
 
-Hasta verilerini depolamak için bir MySQL veritabanı ve tablo oluşturun:
-CREATE DATABASE health_data;
+MySQL sunucusuna MySQL Workbench, phpMyAdmin veya MySQL komut satırı gibi bir istemciyle bağlanın.
+
+health_data veritabanını ve patient_data tablosunu oluşturmak için aşağıdaki SQL komutlarını çalıştırın:
+CREATE DATABASE IF NOT EXISTS health_data;
 USE health_data;
-CREATE TABLE patient_data (
+CREATE TABLE IF NOT EXISTS patient_data (
     id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id VARCHAR(10),
     time DATETIME,
@@ -322,7 +338,13 @@ CREATE TABLE patient_data (
 );
 
 
-config.py dosyasını veritabanı kimlik bilgileri ve Flask ayarlarıyla güncelleyin.
+config.py dosyasındaki kullanıcı için izinleri ayarlayın:
+GRANT ALL PRIVILEGES ON health_data.* TO 'your_user'@'localhost' IDENTIFIED BY 'your_password';
+FLUSH PRIVILEGES;
+
+your_user ve your_password değerlerini config.py dosyanızdaki değerlerle değiştirin.
+
+config.py dosyasını veritabanı kimlik bilgileri ve Flask ayarlarıyla güncelleyin, DB_NAME değerinin "health_data" olduğundan emin olun.
 
 
 
@@ -444,7 +466,13 @@ Sorun Giderme
 
 Veritabanı Hataları:
 config.py dosyasındaki veritabanı kimlik bilgilerini doğrulayın.
-MySQL sunucusunun çalıştığından ve patient_data tablosunun mevcut olduğundan emin olun.
+MySQL sunucusunun çalıştığından ve health_data veritabanı ile patient_data tablosunun mevcut olduğundan emin olun.
+Yaygın MySQL hataları:
+1045: Yanlış kullanıcı adı veya şifre.
+1049: Veritabanı mevcut değil (CREATE DATABASE komutunu çalıştırın).
+1146: Tablo mevcut değil (CREATE TABLE komutunu çalıştırın).
+
+
 
 
 API Hataları:
