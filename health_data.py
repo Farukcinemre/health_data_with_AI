@@ -8,19 +8,23 @@ from datetime import datetime
 import config
 import logging
 from logging.handlers import RotatingFileHandler
+import sys
 
 # Loglama ayarları
 def setup_logging():
     logger = logging.getLogger('HealthData')
     logger.setLevel(logging.INFO)
     
-    file_handler = RotatingFileHandler('health_data.log', maxBytes=1000000, backupCount=5)
+    # Dosya handler'ı (UTF-8 encoding ile)
+    file_handler = RotatingFileHandler('health_data.log', maxBytes=1000000, backupCount=5, encoding='utf-8')
     file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
     
-    console_handler = logging.StreamHandler()
+    # Konsol handler'ı (UTF-8 encoding ile)
+    console_handler = logging.StreamHandler(stream=sys.stdout)
     console_handler.setFormatter(file_formatter)
+    console_handler.setLevel(logging.INFO)
     logger.addHandler(console_handler)
     
     return logger

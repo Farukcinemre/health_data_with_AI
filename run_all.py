@@ -7,7 +7,7 @@ print("Ollama server başlatıldı...")
 time.sleep(5)  # Ollama'nın tam açılması için 5 sn bekle
 
 # Sadece ana çalıştırılacak scriptler
-scripts = ["health_data4.py", "health_data_webui.py"]
+scripts = ["health_data.py", "health_data_webui.py"]
 
 # Python scriptlerini başlat
 processes = [subprocess.Popen(["python", script]) for script in scripts]
