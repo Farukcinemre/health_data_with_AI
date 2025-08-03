@@ -1,0 +1,1 @@
+# Akıllı Askeri Bileklik Projesi
