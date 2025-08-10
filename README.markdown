@@ -2,6 +2,8 @@
 
 Welcome to the **Health Data Monitoring System**, a Python-based application designed to generate, analyze, and store realistic health data. This system leverages the **DeepSeek API** for medical evaluations and a **MySQL database** for data storage. A sleek **Flask-based web interface** allows users to visualize patient data, while an automation script simplifies running all components. 🚀
 
+
+![health_data GIF](health_data_gif.gif)
 ---
 
 ## 📋 Table of Contents
