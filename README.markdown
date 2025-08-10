@@ -541,4 +541,6 @@ Katkılarınızı bekliyoruz! Katkıda bulunmak için:
 
 1. Depoyu çatallayın (fork).
 2. Özellik dalı oluşturun (`git checkout -b feature-name`).
-3. Değişikliklerinizi kaydedin (`git
+3. Değişikliklerinizi kaydedin (`git commit -m "Add feature"`).
+4. Dalı itin (`git push origin feature-name`).
+5. Çekme isteği (pull request) açın.
