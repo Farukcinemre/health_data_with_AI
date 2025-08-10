@@ -279,6 +279,8 @@ We welcome contributions! To contribute:
 
 **Sağlık Verileri İzleme Sistemi**, gerçekçi sağlık verileri üreten, **DeepSeek API** ile analiz eden ve sonuçları **MySQL veritabanında** saklayan Python tabanlı bir uygulamadır. Nabız, oksijen doygunluğu, solunum hızı, sıcaklık ve EKG ritmi gibi hayati bulguları izlemek için tasarlanmıştır. **Flask tabanlı web arayüzü**, verileri görselleştirir ve veritabanını yönetir; bir yardımcı betik ise tüm bileşenleri otomatikleştirir. 🚀
 
+![health_data GIF](health_Data_gif.gif)
+
 ---
 
 ## 📋 İçindekiler
